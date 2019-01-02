@@ -20,11 +20,12 @@ sudo apt-get remove modemmanager -y
 # Common dependencies
 echo "Installing common dependencies"
 sudo apt-get update -y
-sudo apt-get install git zip qtcreator cmake build-essential genromfs ninja-build exiftool vim-common -y
+sudo apt-get install git zip qtcreator cmake build-essential genromfs ninja-build -y
 # Required python packages
 sudo apt-get install python-argparse python-empy python-toml python-numpy python-dev python-pip -y
 sudo -H pip install --upgrade pip
-sudo -H pip install pandas jinja2 pyserial pyyaml
+#hash -d pip
+sudo -H pip install pandas jinja2 pyserial
 # optional python tools
 sudo -H pip install pyulog
 
@@ -42,9 +43,9 @@ else
     tar -xzf eprosima_fastrtps-1-5-0-linux.tar.gz requiredcomponents
     tar -xzf requiredcomponents/eProsima_FastCDR-1.0.7-Linux.tar.gz
     cpucores=$(( $(lscpu | grep Core.*per.*socket | awk -F: '{print $2}') * $(lscpu | grep Socket\(s\) | awk -F: '{print $2}') ))
-    cd eProsima_FastCDR-1.0.7-Linux; ./configure --libdir=/usr/lib; make -j$cpucores; sudo make install
+    cd eProsima_FastCDR-1.0.7-Linux; ./configure --libdir=/usr/lib; make -j$cpucores;
     cd ..
-    cd eProsima_FastRTPS-1.5.0-Linux; ./configure --libdir=/usr/lib; make -j$cpucores; sudo make install
+    cd eProsima_FastRTPS-1.5.0-Linux; ./configure --libdir=/usr/lib; make -j$cpucores;
     cd ..
     rm -rf requiredcomponents eprosima_fastrtps-1-5-0-linux.tar.gz
     popd
@@ -54,14 +55,29 @@ fi
 echo "Installing jMAVSim simulator dependencies"
 sudo apt-get install ant openjdk-8-jdk openjdk-8-jre -y
 
-# Clone PX4/Firmware
-clone_dir=~/src
-echo "Cloning PX4 to: $clone_dir."
-if [ -d "$clone_dir" ]
+# NuttX
+sudo apt-get install python-serial openocd \
+    flex bison libncurses5-dev autoconf texinfo \
+    libftdi-dev libtool zlib1g-dev -y
+
+# Clean up old GCC
+sudo apt-get remove gcc-arm-none-eabi gdb-arm-none-eabi binutils-arm-none-eabi gcc-arm-embedded -y
+sudo add-apt-repository --remove ppa:team-gcc-arm-embedded/ppa -y
+
+
+# GNU Arm Embedded Toolchain: 7-2017-q4-major December 18, 2017
+gcc_dir=$HOME/gcc-arm-none-eabi-7-2017-q4-major
+echo "Installing GCC to: $gcc_dir"
+if [ -d "$gcc_dir" ]
 then
-    echo " Firmware already cloned."
+    echo " GCC already installed."
 else
-    mkdir -p $clone_dir
-    cd $clone_dir
-    git clone https://github.com/PX4/Firmware.git
+    pushd .
+    cd ~    
+    wget https://armkeil.blob.core.windows.net/developer/Files/downloads/gnu-rm/7-2017q4/gcc-arm-none-eabi-7-2017-q4-major-linux.tar.bz2
+    tar -jxf gcc-arm-none-eabi-7-2017-q4-major-linux.tar.bz2
+    exportline="export PATH=$HOME/gcc-arm-none-eabi-7-2017-q4-major/bin:\$PATH"
+    if grep -Fxq "$exportline" ~/.profile; then echo " GCC path already set." ; else echo $exportline >> ~/.profile; fi
+    . ~/.profile
+    popd
 fi

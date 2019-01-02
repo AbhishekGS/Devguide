@@ -37,7 +37,7 @@ fi
 echo "Installing common dependencies"
 sudo add-apt-repository ppa:george-edison55/cmake-3.x -y
 sudo apt-get update
-sudo apt-get install python-argparse git git-core wget zip python-empy python-toml python-numpy cmake build-essential genromfs vim-common -y
+sudo apt-get install python-argparse git git-core wget zip python-empy python-toml python-numpy cmake build-essential genromfs -y
 # required python packages
 sudo apt-get install python-dev -y
 sudo apt-get install python-pip -y
@@ -45,8 +45,7 @@ sudo -H pip install pandas jinja2
 pip install pyserial
 # optional python tools
 pip install pyulog
-echo "Installing jMAVSim simulator dependencies"
-sudo apt-get install ant -y
+
 
 # NuttX
 sudo apt-get install python-serial openocd \
@@ -70,9 +69,9 @@ else
     tar -xzf eprosima_fastrtps-1-5-0-linux.tar.gz eProsima_FastRTPS-1.5.0-Linux/
     tar -xzf eprosima_fastrtps-1-5-0-linux.tar.gz requiredcomponents
     tar -xzf requiredcomponents/eProsima_FastCDR-1.0.7-Linux.tar.gz
-    cd eProsima_FastCDR-1.0.7-Linux; ./configure --libdir=/usr/lib; make; sudo make install
+    cd eProsima_FastCDR-1.0.7-Linux; ./configure --libdir=/usr/lib;
     cd ..
-    cd eProsima_FastRTPS-1.5.0-Linux; ./configure --libdir=/usr/lib; make; sudo make install
+    cd eProsima_FastRTPS-1.5.0-Linux; ./configure --libdir=/usr/lib;
     exportline="export FASTRTPSGEN_DIR=/usr/local/bin/"
     if grep -Fxq "$exportline" ~/.bashrc; then echo " fastrtpsgen path already set." ; else echo $exportline >> ~/.bashrc; fi
     . ~/.bashrc
@@ -92,28 +91,14 @@ then
     echo " GCC already installed."
 else
     pushd .
-    cd ~    
+    cd ~
     wget https://armkeil.blob.core.windows.net/developer/Files/downloads/gnu-rm/7-2017q4/gcc-arm-none-eabi-7-2017-q4-major-linux.tar.bz2
     tar -jxf gcc-arm-none-eabi-7-2017-q4-major-linux.tar.bz2
     exportline="export PATH=$HOME/gcc-arm-none-eabi-7-2017-q4-major/bin:\$PATH"
-    if grep -Fxq "$exportline" ~/.profile; then echo " GCC path already set." ; else echo $exportline >> ~/.profile; fi
-    . ~/.profile
+    if grep -Fxq "$exportline" ~/.bashrc; then echo " GCC path already set." ; else echo $exportline >> ~/.bashrc; fi
+    . ~/.bashrc
     popd
 fi
 
-
-# Clone PX4/Firmware
-clone_dir=~/src
-echo "Cloning PX4 to: $clone_dir."
-if [ -d "$clone_dir" ]
-then
-    echo " Firmware already cloned."
-else
-    mkdir -p $clone_dir
-    cd $clone_dir
-    git clone https://github.com/PX4/Firmware.git
-    cd Firmware
-fi
-cd $clone_dir/Firmware
 
 
